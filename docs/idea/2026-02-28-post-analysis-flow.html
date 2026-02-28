@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>분석 후 자동 복귀 플로우 — 기획</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" rel="stylesheet" />
+  <style>
+    * { font-family: 'Pretendard Variable', system-ui, sans-serif; }
+    .card { background: white; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); border: 1px solid #f0f0f0; }
+    .tag { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+    .flow-arrow { display: flex; align-items: center; color: #a78bfa; font-size: 20px; }
+    .flow-step {
+      background: #faf5ff; border: 2px solid #e9d5ff; border-radius: 12px;
+      padding: 12px 16px; text-align: center; min-width: 100px;
+    }
+    .flow-step.active { background: #7c3aed; border-color: #7c3aed; color: white; }
+    .flow-step.new { background: #059669; border-color: #059669; color: white; }
+    .color-block { width: 48px; height: 48px; border-radius: 8px; border: 1px solid rgba(0,0,0,0.06); }
+    .wire-frame {
+      width: 390px; background: #0f172a; border-radius: 16px; overflow: hidden;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.18); border: 4px solid #1e293b;
+      font-family: system-ui, sans-serif; color: #e2e8f0;
+    }
+    .wire-section { border: 1px dashed rgba(255,255,255,0.15); border-radius: 4px; }
+    .compare-label { font-size: 11px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; }
+    .pulse { animation: pulse 2s infinite; }
+    @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.5; } }
+  </style>
+</head>
+<body class="bg-gray-50 min-h-screen py-12 px-4">
+  <div class="max-w-[800px] mx-auto space-y-6">
+
+    <!-- 1. Header -->
+    <div class="text-center mb-8">
+      <h1 class="text-3xl font-bold text-gray-900 mb-2">분석 후 자동 복귀 플로우</h1>
+      <p class="text-gray-500 text-lg">"분석 완료" 후 캡처 자동 재개로 끊김 없는 QA 사이클 구현</p>
+    </div>
+
+    <!-- 2. Problem & Target -->
+    <div class="card p-6">
+      <div class="grid grid-cols-3 gap-6">
+        <div class="col-span-2">
+          <h3 class="text-sm font-bold text-gray-400 uppercase tracking-wider mb-3">문제</h3>
+          <ul class="space-y-2 text-sm text-gray-700">
+            <li class="flex items-start gap-2">
+              <span class="text-red-500 mt-0.5">&#x2716;</span>
+              <span>"분석 완료" 후 다시 타겟 사이트로 돌아가려면 <b>Start Capture부터 새로 시작</b>해야 함 (화면 공유 권한 재요청)</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <span class="text-red-500 mt-0.5">&#x2716;</span>
+              <span>에러 분석 완료 → 다음 QA 테스트까지 <b>4~5클릭 + 화면선택</b> 필요 (흐름 단절)</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <span class="text-red-500 mt-0.5">&#x2716;</span>
+              <span>분석 완료 후 "sent" 상태에서 <b>FlowBar가 완료 상태로 고정</b>되어 다음 행동이 불명확</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <span class="text-red-500 mt-0.5">&#x2716;</span>
+              <span>실제로 MediaStream은 pause 상태로 <b>살아있음</b> → 재활용 가능한데 버리고 있음</span>
+            </li>
+          </ul>
+        </div>
+        <div>
+          <h3 class="text-sm font-bold text-gray-400 uppercase tracking-wider mb-3">타겟</h3>
+          <p class="text-sm text-gray-600">QA 테스트 중 연속으로 여러 에러를 발견하고 보고해야 하는 개발자/QA 엔지니어</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. Core Features -->
+    <div class="grid grid-cols-3 gap-4">
+      <div class="card p-5 text-center">
+        <div class="text-3xl mb-3">🔄</div>
+        <p class="text-sm font-bold text-gray-800 mb-1">Auto Resume</p>
+        <p class="text-xs text-gray-500">"분석 완료" 후 3초 뒤 캡처 자동 재개. 기존 스트림 재활용.</p>
+      </div>
+      <div class="card p-5 text-center">
+        <div class="text-3xl mb-3">📊</div>
+        <p class="text-sm font-bold text-gray-800 mb-1">Success Toast</p>
+        <p class="text-xs text-gray-500">리포트 저장 성공을 간결한 토스트로 알리고, 즉시 캡처 모드로 전환</p>
+      </div>
+      <div class="card p-5 text-center">
+        <div class="text-3xl mb-3">🔁</div>
+        <p class="text-sm font-bold text-gray-800 mb-1">FlowBar Reset</p>
+        <p class="text-xs text-gray-500">전송 완료 후 FlowBar를 "캡처" 단계로 자동 리셋하여 새 사이클 시작</p>
+      </div>
+    </div>
+
+    <!-- 4. User Flow — Before / After 비교 -->
+    <div class="card p-6">
+      <h3 class="text-sm font-bold text-gray-400 uppercase tracking-wider mb-4">유저 플로우 비교</h3>
+
+      <!-- Before -->
+      <div class="mb-5">
+        <p class="compare-label text-red-400 mb-2">현재 (Before)</p>
+        <div class="flex items-center gap-2 flex-wrap text-xs">
+          <div class="flow-step">
+            <p class="font-bold">리포트</p>
+            <p class="text-[10px] mt-1 opacity-80">수정/확인</p>
+          </div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step">
+            <p class="font-bold">분석 완료</p>
+            <p class="text-[10px] mt-1 opacity-80">클릭</p>
+          </div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step" style="background:#fef2f2;border-color:#fca5a5;">
+            <p class="font-bold" style="color:#dc2626;">idle 상태</p>
+            <p class="text-[10px] mt-1" style="color:#ef4444;">Start Capture 버튼</p>
+          </div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step" style="background:#fef2f2;border-color:#fca5a5;">
+            <p class="font-bold" style="color:#dc2626;">화면 선택</p>
+            <p class="text-[10px] mt-1" style="color:#ef4444;">브라우저 권한 팝업</p>
+          </div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step">
+            <p class="font-bold">캡처 재개</p>
+            <p class="text-[10px] mt-1 opacity-80">테스트 계속</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- After -->
+      <div>
+        <p class="compare-label text-emerald-500 mb-2">개선 (After)</p>
+        <div class="flex items-center gap-2 flex-wrap text-xs">
+          <div class="flow-step">
+            <p class="font-bold">리포트</p>
+            <p class="text-[10px] mt-1 opacity-80">수정/확인</p>
+          </div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step">
+            <p class="font-bold">분석 완료</p>
+            <p class="text-[10px] mt-1 opacity-80">클릭</p>
+          </div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step new">
+            <p class="font-bold">자동 복귀</p>
+            <p class="text-[10px] mt-1 opacity-90">3초 후 캡처 재개</p>
+          </div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step new">
+            <p class="font-bold">캡처 중</p>
+            <p class="text-[10px] mt-1 opacity-90">바로 테스트 계속</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 5. 상세 동작 명세 -->
+    <div class="card p-6">
+      <h3 class="text-sm font-bold text-gray-400 uppercase tracking-wider mb-4">상세 동작 명세</h3>
+      <div class="space-y-4 text-sm text-gray-700">
+
+        <div class="bg-gray-50 rounded-lg p-4">
+          <p class="font-bold text-gray-800 mb-2">1. "분석 완료" 클릭 시</p>
+          <ul class="space-y-1 text-xs text-gray-600 ml-4 list-disc">
+            <li>세션 저장 + Notion 전송 (기존 로직 유지)</li>
+            <li>FlowStep: <code class="bg-white px-1 rounded">"report" → "sent"</code></li>
+            <li>사이드바: 로그 탭으로 전환 (기존 유지)</li>
+            <li><b>NEW:</b> 성공 토스트 표시 — "리포트가 저장되었습니다"</li>
+            <li><b>NEW:</b> 3초 카운트다운 시작</li>
+          </ul>
+        </div>
+
+        <div class="bg-gray-50 rounded-lg p-4">
+          <p class="font-bold text-gray-800 mb-2">2. 3초 카운트다운 중 (ScreenFeed 영역)</p>
+          <ul class="space-y-1 text-xs text-gray-600 ml-4 list-disc">
+            <li>ScreenFeed 영역에 "캡처 재개 중... 3s" 오버레이 표시</li>
+            <li>카운트다운: 3 → 2 → 1</li>
+            <li>"새 세션 시작" 버튼 제공 (카운트다운 취소 → Stop Capture → idle)</li>
+            <li>카운트다운 동안 비디오 프리뷰는 계속 표시 (스트림 살아있으므로)</li>
+          </ul>
+        </div>
+
+        <div class="bg-gray-50 rounded-lg p-4">
+          <p class="font-bold text-gray-800 mb-2">3. 자동 복귀 (3초 후)</p>
+          <ul class="space-y-1 text-xs text-gray-600 ml-4 list-disc">
+            <li><code class="bg-white px-1 rounded">pausedRef.current = false</code> + Worker 재시작</li>
+            <li>FlowStep: <code class="bg-white px-1 rounded">"sent" → "capturing"</code></li>
+            <li>FlowBar: 리셋되어 "캡처" 단계 활성화 (새 사이클)</li>
+            <li>프레임 버퍼 초기화 (이전 세션 프레임 제거)</li>
+            <li>REC 인디케이터 + FPS/Latency 오버레이 복귀</li>
+          </ul>
+        </div>
+
+        <div class="bg-gray-50 rounded-lg p-4">
+          <p class="font-bold text-gray-800 mb-2">4. 스트림이 끊어진 경우 (예외 처리)</p>
+          <ul class="space-y-1 text-xs text-gray-600 ml-4 list-disc">
+            <li>사용자가 분석 중 브라우저 화면 공유를 중단한 경우</li>
+            <li><code class="bg-white px-1 rounded">streamRef.current === null</code> 체크</li>
+            <li>스트림 없으면 → idle 상태로 복귀 + "화면 공유가 종료되었습니다" 로그</li>
+            <li>"Start Capture" 버튼 표시 (기존 동작)</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- 6. Wireframe — Before / After -->
+    <div class="card p-6">
+      <h3 class="text-sm font-bold text-gray-400 uppercase tracking-wider mb-4">주요 화면</h3>
+      <div class="flex gap-6 justify-center flex-wrap">
+
+        <!-- Before: Current "sent" state -->
+        <div>
+          <p class="compare-label text-red-400 text-center mb-2">현재: "분석 완료" 직후</p>
+          <div class="wire-frame" style="width:360px;">
+            <!-- FlowBar complete -->
+            <div class="flex items-center justify-center gap-1 px-3 py-2 text-[9px]" style="background:#1e293b;">
+              <span class="text-green-400">✓ 캡처</span><span class="text-slate-600">—</span>
+              <span class="text-green-400">✓ 범위선택</span><span class="text-slate-600">—</span>
+              <span class="text-green-400">✓ 분석</span><span class="text-slate-600">—</span>
+              <span class="text-green-400">✓ 리포트</span><span class="text-slate-600">—</span>
+              <span class="text-green-400">✓ 전송</span>
+            </div>
+            <!-- Empty ScreenFeed -->
+            <div style="background:#09090b;height:180px;" class="flex flex-col items-center justify-center gap-3">
+              <div class="w-12 h-12 rounded-xl border border-slate-700 flex items-center justify-center">
+                <span class="text-slate-600 text-lg">🖥️</span>
+              </div>
+              <p class="text-slate-500 text-[10px]">모니터링할 윈도우를 선택하세요</p>
+              <button class="px-4 py-1.5 rounded text-[10px] font-bold text-white" style="background:linear-gradient(135deg,#7c3aed,#5b21b6);">Start Capture</button>
+            </div>
+            <!-- Sidebar hint -->
+            <div class="px-3 py-2 text-[9px] text-slate-500" style="background:#1e293b;">
+              <p class="text-slate-400 font-bold mb-1">AGENT LOG</p>
+              <p class="text-green-400">[15:42:36] Session saved.</p>
+              <p class="text-yellow-400">[15:42:37] Notion sync failed...</p>
+            </div>
+            <!-- Problem annotation -->
+            <div class="px-3 py-2 text-center" style="background:#7f1d1d;">
+              <p class="text-[10px] text-red-300 font-bold">다시 캡처하려면 Start Capture → 화면 선택 필요</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- After: Auto-resume with countdown -->
+        <div>
+          <p class="compare-label text-emerald-500 text-center mb-2">개선: 자동 복귀 카운트다운</p>
+          <div class="wire-frame" style="width:360px;">
+            <!-- FlowBar transitioning -->
+            <div class="flex items-center justify-center gap-1 px-3 py-2 text-[9px]" style="background:#1e293b;">
+              <span class="text-green-400">✓ 캡처</span><span class="text-slate-600">—</span>
+              <span class="text-green-400">✓ 범위선택</span><span class="text-slate-600">—</span>
+              <span class="text-green-400">✓ 분석</span><span class="text-slate-600">—</span>
+              <span class="text-green-400">✓ 리포트</span><span class="text-slate-600">—</span>
+              <span class="text-green-400">✓ 전송</span>
+            </div>
+            <!-- ScreenFeed with countdown overlay -->
+            <div style="background:#09090b;height:180px;" class="relative flex items-center justify-center">
+              <!-- Background: video preview (still connected) -->
+              <div class="absolute inset-0 opacity-30" style="background:linear-gradient(135deg,#334155,#1e293b);"></div>
+              <!-- Countdown overlay -->
+              <div class="relative text-center z-10">
+                <div class="w-16 h-16 rounded-full border-2 border-emerald-400 flex items-center justify-center mx-auto mb-2" style="background:rgba(16,185,129,0.15);">
+                  <span class="text-2xl font-bold text-emerald-400 pulse">3</span>
+                </div>
+                <p class="text-slate-300 text-[11px] font-medium mb-1">캡처 재개 중...</p>
+                <p class="text-slate-500 text-[9px]">자동으로 모니터링이 재개됩니다</p>
+                <button class="mt-2 px-3 py-1 rounded text-[9px] text-slate-400 border border-slate-600 hover:text-white">세션 종료</button>
+              </div>
+            </div>
+            <!-- Sidebar hint -->
+            <div class="px-3 py-2 text-[9px] text-slate-500" style="background:#1e293b;">
+              <p class="text-slate-400 font-bold mb-1">AGENT LOG</p>
+              <p class="text-green-400">[15:42:36] Session saved.</p>
+              <p class="text-emerald-400">[15:42:36] Resuming capture in 3s...</p>
+            </div>
+            <!-- Success annotation -->
+            <div class="px-3 py-2 text-center" style="background:#064e3b;">
+              <p class="text-[10px] text-emerald-300 font-bold">3초 후 캡처 자동 재개 → 바로 다음 테스트</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 7. 구현 포인트 -->
+    <div class="card p-6">
+      <h3 class="text-sm font-bold text-gray-400 uppercase tracking-wider mb-4">구현 포인트</h3>
+      <div class="space-y-3 text-sm">
+        <div class="flex items-start gap-3">
+          <span class="bg-violet-100 text-violet-600 rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold shrink-0">1</span>
+          <div>
+            <p class="font-bold text-gray-800">useScreenCapture — resumeCapture 함수 추가</p>
+            <p class="text-xs text-gray-500">pauseCapture의 역순: <code>pausedRef = false</code> + Worker 재시작 + 프레임 버퍼 초기화</p>
+          </div>
+        </div>
+        <div class="flex items-start gap-3">
+          <span class="bg-violet-100 text-violet-600 rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold shrink-0">2</span>
+          <div>
+            <p class="font-bold text-gray-800">useDraftReport — 분석 완료 후 resume-capture 이벤트 발행</p>
+            <p class="text-xs text-gray-500">3초 setTimeout 후 <code>window.dispatchEvent(new CustomEvent("resume-capture"))</code></p>
+          </div>
+        </div>
+        <div class="flex items-start gap-3">
+          <span class="bg-violet-100 text-violet-600 rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold shrink-0">3</span>
+          <div>
+            <p class="font-bold text-gray-800">ScreenFeed — resume-capture 이벤트 리스너</p>
+            <p class="text-xs text-gray-500">스트림 존재 확인 → resumeCapture() 호출 + flowStep을 "capturing"으로 전환</p>
+          </div>
+        </div>
+        <div class="flex items-start gap-3">
+          <span class="bg-violet-100 text-violet-600 rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold shrink-0">4</span>
+          <div>
+            <p class="font-bold text-gray-800">ScreenFeedView — 카운트다운 오버레이 UI</p>
+            <p class="text-xs text-gray-500">flowStep === "sent" 일 때 카운트다운 + "세션 종료" 버튼 표시</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 8. Design Direction -->
+    <div class="card p-6">
+      <h3 class="text-sm font-bold text-gray-400 uppercase tracking-wider mb-4">디자인 방향</h3>
+      <div class="space-y-3">
+        <div class="flex gap-2">
+          <span class="tag bg-emerald-50 text-emerald-600">Seamless Loop</span>
+          <span class="tag bg-violet-50 text-violet-600">Minimal Friction</span>
+          <span class="tag bg-blue-50 text-blue-600">Auto Recovery</span>
+        </div>
+        <div class="flex gap-3">
+          <div class="flex flex-col items-center gap-1">
+            <div class="color-block" style="background: #10b981"></div>
+            <span class="text-[10px] text-gray-400">Resume</span>
+          </div>
+          <div class="flex flex-col items-center gap-1">
+            <div class="color-block" style="background: #7c3aed"></div>
+            <span class="text-[10px] text-gray-400">Active</span>
+          </div>
+          <div class="flex flex-col items-center gap-1">
+            <div class="color-block" style="background: #0f172a"></div>
+            <span class="text-[10px] text-gray-400">BG</span>
+          </div>
+          <div class="flex flex-col items-center gap-1">
+            <div class="color-block" style="background: #334155"></div>
+            <span class="text-[10px] text-gray-400">Overlay</span>
+          </div>
+        </div>
+        <p class="text-xs text-gray-400">카운트다운은 emerald 계열로 "복귀/회복" 느낌. 기존 purple 액센트와 자연스럽게 공존.</p>
+      </div>
+    </div>
+
+    <!-- 9. Next Steps -->
+    <div class="card p-6 bg-violet-50 border-violet-100">
+      <h3 class="text-sm font-bold text-violet-400 uppercase tracking-wider mb-3">다음 단계</h3>
+      <ul class="space-y-1 text-sm text-gray-700">
+        <li><code class="text-xs bg-white px-1.5 py-0.5 rounded text-violet-600">/dev-plan</code> → 구현 계획 수립 (resumeCapture + 카운트다운 UI + 이벤트 연결)</li>
+        <li><code class="text-xs bg-white px-1.5 py-0.5 rounded text-violet-600">/dev-go</code> → 바로 구현</li>
+      </ul>
+    </div>
+
+  </div>
+</body>
+</html>

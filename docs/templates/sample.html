@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{{SCREEN_NAME}} 화면 개선 분석</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" rel="stylesheet" />
+  <style>
+    * { font-family: 'Pretendard Variable', system-ui, sans-serif; }
+    .tab-btn { transition: all 0.2s; cursor: pointer; }
+    .tab-btn.active { border-bottom: 2px solid #6366f1; color: #111; font-weight: 600; }
+    .tab-btn:not(.active) { border-bottom: 2px solid transparent; color: #888; }
+    .tab-btn:not(.active):hover { color: #555; }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+    .card { background: white; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); border: 1px solid #f0f0f0; }
+    .issue-badge { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 6px; font-size: 11px; font-weight: 600; }
+    .issue-critical { background: #fef2f2; color: #dc2626; }
+    .issue-improve { background: #fef9c3; color: #a16207; }
+    .issue-good { background: #f0fdf4; color: #16a34a; }
+    .mockup-frame {
+      width: 390px; border-radius: 24px; overflow: hidden;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.18); border: 6px solid #1a1a1a;
+      margin: 0 auto; background: #fff;
+    }
+    .mockup-frame.dark { background: #18181b; }
+  </style>
+</head>
+<body class="bg-gray-50 text-gray-900 p-8">
+  <div class="max-w-[900px] mx-auto">
+
+    <!-- 1. Header -->
+    <div class="mb-8">
+      <h1 class="text-2xl font-bold">{{SCREEN_NAME}} <span class="text-base text-gray-400 font-normal">화면 개선 분석</span></h1>
+      <p class="text-gray-500 text-sm mt-1">{{PROJECT_NAME}} · 분석일 {{DATE}}</p>
+    </div>
+
+    <!-- 2. Issue Summary (max 5 cards) -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+      <!-- ISSUE_CARD: Repeat for each issue -->
+      <div class="card p-4">
+        <div class="flex items-center gap-2 mb-2">
+          <span class="issue-badge issue-critical">Critical</span>
+          <!-- or: issue-improve / issue-good -->
+        </div>
+        <p class="text-sm font-semibold text-gray-800 mb-1">{{ISSUE_TITLE}}</p>
+        <p class="text-xs text-gray-500">{{ISSUE_DESCRIPTION}}</p>
+      </div>
+      <!-- /ISSUE_CARD -->
+    </div>
+
+    <!-- 3. Tab Navigation -->
+    <div class="flex gap-6 border-b border-gray-200 mb-6">
+      <button class="tab-btn active pb-3 text-sm" onclick="switchTab('current')">현재</button>
+      <button class="tab-btn pb-3 text-sm" onclick="switchTab('a')">안 A: {{CONCEPT_A_NAME}}</button>
+      <button class="tab-btn pb-3 text-sm" onclick="switchTab('b')">안 B: {{CONCEPT_B_NAME}}</button>
+      <button class="tab-btn pb-3 text-sm" onclick="switchTab('c')">안 C: {{CONCEPT_C_NAME}}</button>
+    </div>
+
+    <!-- Tab: Current -->
+    <div id="tab-current" class="tab-panel active">
+      <div class="card p-6 mb-6">
+        <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4">현재 화면 (Before)</p>
+        <div class="mockup-frame dark">
+          <!-- {{MOCKUP_CURRENT}} — Replace with CSS/div mockup of current screen -->
+          <div class="p-4 text-center text-zinc-500 text-sm py-20">현재 화면 목업</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab: Plan A (Minimal Change) -->
+    <div id="tab-a" class="tab-panel">
+      <div class="card p-6 mb-6">
+        <p class="text-sm font-semibold text-gray-800 mb-1">{{CONCEPT_A_NAME}}</p>
+        <p class="text-xs text-gray-500 mb-4">{{CONCEPT_A_DESCRIPTION}}</p>
+        <div class="mb-4">
+          <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">핵심 변경사항</p>
+          <ul class="text-xs text-gray-600 space-y-1 list-disc list-inside">
+            <li>{{CHANGE_A_1}}</li>
+            <li>{{CHANGE_A_2}}</li>
+            <li>{{CHANGE_A_3}}</li>
+          </ul>
+        </div>
+        <div class="mockup-frame dark">
+          <!-- {{MOCKUP_A}} — Replace with CSS/div mockup -->
+          <div class="p-4 text-center text-zinc-500 text-sm py-20">안 A 목업</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab: Plan B (Structure Improvement) -->
+    <div id="tab-b" class="tab-panel">
+      <div class="card p-6 mb-6">
+        <p class="text-sm font-semibold text-gray-800 mb-1">{{CONCEPT_B_NAME}}</p>
+        <p class="text-xs text-gray-500 mb-4">{{CONCEPT_B_DESCRIPTION}}</p>
+        <div class="mb-4">
+          <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">핵심 변경사항</p>
+          <ul class="text-xs text-gray-600 space-y-1 list-disc list-inside">
+            <li>{{CHANGE_B_1}}</li>
+            <li>{{CHANGE_B_2}}</li>
+            <li>{{CHANGE_B_3}}</li>
+          </ul>
+        </div>
+        <div class="mockup-frame dark">
+          <!-- {{MOCKUP_B}} — Replace with CSS/div mockup -->
+          <div class="p-4 text-center text-zinc-500 text-sm py-20">안 B 목업</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab: Plan C (New Pattern) -->
+    <div id="tab-c" class="tab-panel">
+      <div class="card p-6 mb-6">
+        <p class="text-sm font-semibold text-gray-800 mb-1">{{CONCEPT_C_NAME}}</p>
+        <p class="text-xs text-gray-500 mb-4">{{CONCEPT_C_DESCRIPTION}}</p>
+        <div class="mb-4">
+          <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">핵심 변경사항</p>
+          <ul class="text-xs text-gray-600 space-y-1 list-disc list-inside">
+            <li>{{CHANGE_C_1}}</li>
+            <li>{{CHANGE_C_2}}</li>
+            <li>{{CHANGE_C_3}}</li>
+          </ul>
+        </div>
+        <div class="mockup-frame dark">
+          <!-- {{MOCKUP_C}} — Replace with CSS/div mockup -->
+          <div class="p-4 text-center text-zinc-500 text-sm py-20">안 C 목업</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4. Recommendation -->
+    <div class="card p-6">
+      <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">추천 & 다음 단계</p>
+      <p class="text-sm text-gray-700">{{RECOMMENDATION}}</p>
+    </div>
+
+  </div>
+
+  <!-- Tab switching logic -->
+  <script>
+    function switchTab(id) {
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.getElementById('tab-' + id).classList.add('active');
+      event.currentTarget.classList.add('active');
+    }
+  </script>
+
+  <!-- 선택: {{SELECTED_PLAN}} / 수정사항: {{MODIFICATIONS}} -->
+</body>
+</html>

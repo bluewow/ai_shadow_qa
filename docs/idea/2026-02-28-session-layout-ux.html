@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Active Session 레이아웃 UX 개선</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
+  <style>
+    body { font-family: 'Pretendard', sans-serif; }
+    .card { background: white; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); border: 1px solid #f0f0f0; }
+    .tag { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+    .flow-arrow { display: flex; align-items: center; color: #a78bfa; font-size: 20px; }
+    .flow-step { background: #faf5ff; border: 2px solid #e9d5ff; border-radius: 12px; padding: 12px 16px; text-align: center; min-width: 100px; }
+    .flow-step.active { background: #7c3aed; border-color: #7c3aed; color: white; }
+    .wire-frame { background: #18181b; border-radius: 8px; overflow: hidden; font-family: monospace; color: #e4e4e7; }
+    .wire-section { border: 1px dashed rgba(255,255,255,0.15); border-radius: 4px; }
+    .color-block { width: 48px; height: 48px; border-radius: 8px; }
+    .before-after { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  </style>
+</head>
+<body class="bg-gray-50 min-h-screen py-12 px-4">
+  <div class="max-w-[800px] mx-auto space-y-6">
+
+    <!-- 1. 헤더 -->
+    <div class="text-center mb-8">
+      <h1 class="text-3xl font-bold text-gray-900 mb-2">Active Session 레이아웃 UX 개선</h1>
+      <p class="text-gray-500 text-lg">분석 결과 겹침 해소 + 리포트 편집 UX + 플로우 시각화</p>
+    </div>
+
+    <!-- 2. 문제 & 타겟 -->
+    <div class="card p-6">
+      <div class="grid grid-cols-3 gap-6">
+        <div class="col-span-2">
+          <h3 class="text-sm font-bold text-gray-400 uppercase tracking-wider mb-3">문제</h3>
+          <ul class="space-y-2 text-sm text-gray-700">
+            <li class="flex items-start gap-2">
+              <span class="text-red-500 mt-0.5">&#x2716;</span>
+              <span><strong>Draft Report가 로그를 완전히 가림</strong> — absolute overlay로 겹침, 두 정보를 동시에 볼 수 없음</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <span class="text-red-500 mt-0.5">&#x2716;</span>
+              <span><strong>화면 피드 70% / 사이드바 30%</strong> — 분석 후에는 피드보다 결과가 중요한데 공간 부족</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <span class="text-red-500 mt-0.5">&#x2716;</span>
+              <span><strong>리포트 편집 불편</strong> — textarea 3줄, 좁은 width에서 내용 확인/수정 어려움</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <span class="text-red-500 mt-0.5">&#x2716;</span>
+              <span><strong>분석 진행 상태 불명확</strong> — 캡처 → 분석 → 결과 단계가 시각적으로 구분 안 됨</span>
+            </li>
+          </ul>
+        </div>
+        <div>
+          <h3 class="text-sm font-bold text-gray-400 uppercase tracking-wider mb-3">타겟</h3>
+          <p class="text-sm text-gray-600">QA 엔지니어 / 개발자 (해커톤 데모 참관자)</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. 핵심 기능 -->
+    <div class="grid grid-cols-3 gap-4">
+      <div class="card p-5 text-center">
+        <div class="text-3xl mb-3">🔀</div>
+        <h4 class="font-bold text-sm text-gray-900 mb-1">탭 기반 사이드바</h4>
+        <p class="text-xs text-gray-500">로그 / 리포트를 탭으로 분리, 겹침 해소</p>
+      </div>
+      <div class="card p-5 text-center">
+        <div class="text-3xl mb-3">📝</div>
+        <h4 class="font-bold text-sm text-gray-900 mb-1">리포트 편집 강화</h4>
+        <p class="text-xs text-gray-500">넓은 편집 영역, severity 선택, 즉시 미리보기</p>
+      </div>
+      <div class="card p-5 text-center">
+        <div class="text-3xl mb-3">📊</div>
+        <h4 class="font-bold text-sm text-gray-900 mb-1">분석 플로우 바</h4>
+        <p class="text-xs text-gray-500">캡처 → 분석 → 리포트 → 전송 단계 시각화</p>
+      </div>
+    </div>
+
+    <!-- 4. 유저 플로우 -->
+    <div class="card p-6">
+      <h3 class="text-sm font-bold text-gray-400 uppercase tracking-wider mb-5">분석 플로우</h3>
+      <div class="flex items-center justify-between gap-2">
+        <div class="flow-step">
+          <div class="text-lg mb-1">🖥️</div>
+          <div class="text-xs font-bold">캡처 중</div>
+          <div class="text-[10px] text-gray-500 mt-1">화면 녹화</div>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step active">
+          <div class="text-lg mb-1">⚡</div>
+          <div class="text-xs font-bold">분석 요청</div>
+          <div class="text-[10px] mt-1 opacity-80">ANALYZE 클릭</div>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step">
+          <div class="text-lg mb-1">🤖</div>
+          <div class="text-xs font-bold">AI 분석</div>
+          <div class="text-[10px] text-gray-500 mt-1">Gemini 처리</div>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step">
+          <div class="text-lg mb-1">📋</div>
+          <div class="text-xs font-bold">리포트 편집</div>
+          <div class="text-[10px] text-gray-500 mt-1">Draft 확인/수정</div>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step">
+          <div class="text-lg mb-1">🚀</div>
+          <div class="text-xs font-bold">Notion 전송</div>
+          <div class="text-[10px] text-gray-500 mt-1">티켓 생성</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 5. Before / After 와이어프레임 -->
+    <div class="card p-6">
+      <h3 class="text-sm font-bold text-gray-400 uppercase tracking-wider mb-5">Before → After 비교</h3>
+
+      <div class="before-after">
+        <!-- BEFORE -->
+        <div>
+          <p class="text-xs font-bold text-red-500 uppercase mb-3 text-center">Before (현재)</p>
+          <div class="wire-frame" style="height: 380px; display: flex; flex-direction: column;">
+            <!-- Header -->
+            <div class="flex items-center justify-between px-3 py-2 border-b border-zinc-800 text-[10px]">
+              <span class="text-purple-400 font-bold">⚡ AI Shadow QA</span>
+              <div class="flex gap-3">
+                <span class="text-zinc-500">Dashboard</span>
+                <span class="text-white border-b border-purple-500 pb-0.5">Active Session</span>
+                <span class="text-zinc-500">History</span>
+              </div>
+            </div>
+            <!-- Content -->
+            <div class="flex flex-1 overflow-hidden">
+              <!-- Screen Feed 70% -->
+              <div class="wire-section m-1 flex-[7] flex items-center justify-center" style="background: #0a0a0a;">
+                <div class="text-center">
+                  <div class="text-2xl mb-1">🖥️</div>
+                  <div class="text-[9px] text-zinc-500">화면 피드 (70%)</div>
+                  <div class="text-[9px] text-red-400 mt-1">너무 넓음</div>
+                </div>
+              </div>
+              <!-- Sidebar 30% -->
+              <div class="flex-[3] flex flex-col relative" style="min-width: 0;">
+                <!-- Log -->
+                <div class="wire-section m-1 flex-1 p-2 overflow-hidden">
+                  <div class="text-[9px] text-purple-400 font-bold mb-1">AGENT LOG</div>
+                  <div class="text-[8px] text-zinc-600 space-y-0.5">
+                    <div>[13:48] INFO Starting...</div>
+                    <div>[13:48] SCAN Mapping...</div>
+                    <div>[13:48] <span class="text-red-400">ANALYSIS 결과...</span></div>
+                  </div>
+                </div>
+                <!-- Button -->
+                <div class="m-1">
+                  <div class="bg-purple-700 text-center py-1.5 rounded text-[9px] font-bold">ANALYZE</div>
+                </div>
+                <!-- Draft Report (OVERLAP!) -->
+                <div class="absolute bottom-10 left-1 right-1 border border-red-500/50 rounded p-2 z-10" style="background: rgba(39,39,42,0.97);">
+                  <div class="text-[9px] font-bold text-white mb-1">📋 DRAFT TICKET</div>
+                  <div class="text-[8px] text-zinc-400 mb-1">Summary: ...</div>
+                  <div class="text-[8px] text-zinc-400 mb-1">Steps: ...</div>
+                  <div class="bg-white text-black text-center py-1 rounded text-[8px] font-bold">Send</div>
+                  <div class="absolute -top-3 left-1/2 -translate-x-1/2 text-[8px] text-red-400 bg-red-500/20 px-2 rounded">겹침!</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- AFTER -->
+        <div>
+          <p class="text-xs font-bold text-green-600 uppercase mb-3 text-center">After (개선안)</p>
+          <div class="wire-frame" style="height: 380px; display: flex; flex-direction: column;">
+            <!-- Header -->
+            <div class="flex items-center justify-between px-3 py-2 border-b border-zinc-800 text-[10px]">
+              <span class="text-purple-400 font-bold">⚡ AI Shadow QA</span>
+              <div class="flex gap-3">
+                <span class="text-zinc-500">Dashboard</span>
+                <span class="text-white border-b border-purple-500 pb-0.5">Active Session</span>
+                <span class="text-zinc-500">History</span>
+              </div>
+            </div>
+            <!-- Flow Bar -->
+            <div class="flex items-center gap-1 px-3 py-1.5 border-b border-zinc-800 text-[8px]">
+              <span class="bg-green-500/20 text-green-400 px-1.5 py-0.5 rounded">1.캡처</span>
+              <span class="text-zinc-600">→</span>
+              <span class="bg-purple-500/20 text-purple-400 px-1.5 py-0.5 rounded font-bold ring-1 ring-purple-500/40">2.분석</span>
+              <span class="text-zinc-600">→</span>
+              <span class="text-zinc-600 px-1.5 py-0.5">3.리포트</span>
+              <span class="text-zinc-600">→</span>
+              <span class="text-zinc-600 px-1.5 py-0.5">4.전송</span>
+            </div>
+            <!-- Content -->
+            <div class="flex flex-1 overflow-hidden">
+              <!-- Screen Feed 55% -->
+              <div class="wire-section m-1 flex-[55] flex items-center justify-center" style="background: #0a0a0a;">
+                <div class="text-center">
+                  <div class="text-2xl mb-1">🖥️</div>
+                  <div class="text-[9px] text-zinc-500">화면 피드 (55%)</div>
+                  <div class="text-[9px] text-green-400 mt-1">축소됨</div>
+                </div>
+              </div>
+              <!-- Sidebar 45% -->
+              <div class="flex-[45] flex flex-col" style="min-width: 0;">
+                <!-- Tab Header -->
+                <div class="flex border-b border-zinc-800 text-[9px]">
+                  <div class="flex-1 text-center py-1.5 text-zinc-500 border-b border-transparent">🖥 로그</div>
+                  <div class="flex-1 text-center py-1.5 text-white border-b-2 border-purple-500 font-bold bg-purple-500/10">📋 리포트</div>
+                </div>
+                <!-- Report Panel (Full Height!) -->
+                <div class="flex-1 p-2 overflow-auto">
+                  <div class="space-y-2">
+                    <div>
+                      <div class="text-[8px] text-zinc-500 mb-0.5">SEVERITY</div>
+                      <div class="flex gap-1">
+                        <span class="bg-red-500/20 text-red-400 text-[8px] px-1.5 py-0.5 rounded font-bold ring-1 ring-red-500/50">high</span>
+                        <span class="text-[8px] text-zinc-600 px-1.5 py-0.5">medium</span>
+                        <span class="text-[8px] text-zinc-600 px-1.5 py-0.5">low</span>
+                      </div>
+                    </div>
+                    <div>
+                      <div class="text-[8px] text-zinc-500 mb-0.5">SUMMARY</div>
+                      <div class="border border-zinc-700 rounded px-2 py-1.5 text-[9px] text-white bg-black/30">할일 완료 3개 이상 시 NaN 표시</div>
+                    </div>
+                    <div>
+                      <div class="text-[8px] text-zinc-500 mb-0.5">REPRODUCTION STEPS</div>
+                      <div class="border border-zinc-700 rounded px-2 py-1.5 text-[8px] text-zinc-300 bg-black/30" style="min-height: 60px;">
+                        1. 할일 3개 추가<br>
+                        2. 모두 완료 체크<br>
+                        3. 통계 영역 확인<br>
+                        4. NaN% 표시됨
+                      </div>
+                    </div>
+                    <div>
+                      <div class="text-[8px] text-zinc-500 mb-0.5">ERROR TYPE</div>
+                      <div class="border border-zinc-700 rounded px-2 py-1 text-[9px] text-white bg-black/30">UIBug</div>
+                    </div>
+                  </div>
+                </div>
+                <!-- Button -->
+                <div class="p-2 border-t border-zinc-800">
+                  <div class="flex gap-1">
+                    <div class="flex-1 bg-purple-700 text-center py-1.5 rounded text-[9px] font-bold">⚡ 재분석</div>
+                    <div class="flex-1 bg-white text-black text-center py-1.5 rounded text-[9px] font-bold">Notion 전송 →</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 로그 탭 와이어프레임 -->
+    <div class="card p-6">
+      <h3 class="text-sm font-bold text-gray-400 uppercase tracking-wider mb-5">사이드바 — 로그 탭 화면</h3>
+      <div class="flex justify-center">
+        <div class="wire-frame" style="width: 320px; height: 340px; display: flex; flex-direction: column;">
+          <!-- Tab Header -->
+          <div class="flex border-b border-zinc-800 text-[10px]">
+            <div class="flex-1 text-center py-2 text-white border-b-2 border-purple-500 font-bold bg-purple-500/10">🖥 로그</div>
+            <div class="flex-1 text-center py-2 text-zinc-500 border-b border-transparent">📋 리포트 <span class="bg-red-500 text-white text-[8px] px-1 rounded-full ml-1">1</span></div>
+          </div>
+          <!-- Log Content -->
+          <div class="flex-1 p-3 overflow-auto text-[10px] space-y-1">
+            <div><span class="text-zinc-600">[13:48:22]</span> <span class="text-purple-400">INFO</span> Analyze triggered. 100 frames</div>
+            <div><span class="text-zinc-600">[13:48:22]</span> <span class="text-purple-400">INFO</span> Analyzing 100 frames...</div>
+            <div><span class="text-zinc-600">[13:48:24]</span> <span class="text-purple-400">SCAN</span> UI 요소 매핑 중...</div>
+            <div><span class="text-zinc-600">[13:48:25]</span> <span class="text-red-400">ANALYSIS</span> 에러 감지됨</div>
+            <div><span class="text-zinc-600">[13:48:25]</span> <span class="text-red-400">ANALYSIS</span> 할일 3개 이상 완료 시 통계 영역에 NaN 표시</div>
+            <div><span class="text-zinc-600">[13:48:25]</span> <span class="text-purple-400">ACT</span> Draft Report 생성됨</div>
+            <div class="mt-2 flex items-center gap-1">
+              <span class="w-1.5 h-3 bg-purple-500 rounded-full animate-pulse"></span>
+              <span class="text-zinc-600 text-[9px]">대기 중...</span>
+            </div>
+          </div>
+          <!-- Analyze Button -->
+          <div class="p-2 border-t border-zinc-800">
+            <div class="bg-gradient-to-r from-purple-600 to-purple-800 text-center py-2.5 rounded-lg text-[10px] font-bold flex items-center justify-center gap-1">
+              ⚡ ANALYZE ERROR
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 6. 변경 요약 테이블 -->
+    <div class="card p-6">
+      <h3 class="text-sm font-bold text-gray-400 uppercase tracking-wider mb-4">변경 사항 요약</h3>
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="border-b border-gray-100">
+            <th class="text-left py-2 text-gray-400 font-medium text-xs">항목</th>
+            <th class="text-left py-2 text-gray-400 font-medium text-xs">Before</th>
+            <th class="text-left py-2 text-gray-400 font-medium text-xs">After</th>
+          </tr>
+        </thead>
+        <tbody class="text-xs text-gray-700">
+          <tr class="border-b border-gray-50">
+            <td class="py-2.5 font-medium">레이아웃 비율</td>
+            <td class="py-2.5 text-red-500">70% / 30%</td>
+            <td class="py-2.5 text-green-600">55% / 45%</td>
+          </tr>
+          <tr class="border-b border-gray-50">
+            <td class="py-2.5 font-medium">리포트 표시</td>
+            <td class="py-2.5 text-red-500">absolute overlay (로그 위 겹침)</td>
+            <td class="py-2.5 text-green-600">탭 전환 (독립 패널)</td>
+          </tr>
+          <tr class="border-b border-gray-50">
+            <td class="py-2.5 font-medium">리포트 편집</td>
+            <td class="py-2.5 text-red-500">textarea 3줄, 좁은 width</td>
+            <td class="py-2.5 text-green-600">전체 패널 사용, severity 선택 UI</td>
+          </tr>
+          <tr class="border-b border-gray-50">
+            <td class="py-2.5 font-medium">분석 플로우</td>
+            <td class="py-2.5 text-red-500">없음 (로그로만 확인)</td>
+            <td class="py-2.5 text-green-600">헤더 하단 스텝 바</td>
+          </tr>
+          <tr>
+            <td class="py-2.5 font-medium">탭 전환</td>
+            <td class="py-2.5 text-red-500">없음</td>
+            <td class="py-2.5 text-green-600">로그 ↔ 리포트 + 뱃지 알림</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- 7. 디자인 방향 -->
+    <div class="card p-6">
+      <h3 class="text-sm font-bold text-gray-400 uppercase tracking-wider mb-4">디자인 방향</h3>
+      <div class="grid grid-cols-3 gap-6">
+        <div>
+          <p class="text-xs text-gray-400 mb-2">무드</p>
+          <div class="flex flex-wrap gap-2">
+            <span class="tag bg-gray-100 text-gray-700">Operational</span>
+            <span class="tag bg-purple-100 text-purple-700">Focused</span>
+            <span class="tag bg-gray-100 text-gray-700">Minimal</span>
+          </div>
+        </div>
+        <div>
+          <p class="text-xs text-gray-400 mb-2">컬러 팔레트 (유지)</p>
+          <div class="flex gap-2">
+            <div class="color-block" style="background: #7938fa;" title="Purple"></div>
+            <div class="color-block" style="background: #18181b;" title="Zinc-900"></div>
+            <div class="color-block" style="background: #27272a;" title="Zinc-800"></div>
+            <div class="color-block" style="background: #ef4444;" title="Red-500"></div>
+          </div>
+        </div>
+        <div>
+          <p class="text-xs text-gray-400 mb-2">핵심 원칙</p>
+          <ul class="text-xs text-gray-600 space-y-1">
+            <li>- 겹침 없는 정보 배치</li>
+            <li>- 분석 상태의 즉각적 피드백</li>
+            <li>- 리포트 편집에 충분한 공간</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- 8. 영향 범위 -->
+    <div class="card p-6">
+      <h3 class="text-sm font-bold text-gray-400 uppercase tracking-wider mb-4">수정 대상 파일</h3>
+      <div class="space-y-2 text-xs">
+        <div class="flex items-start gap-2">
+          <span class="tag bg-blue-100 text-blue-700 text-[10px]">수정</span>
+          <div>
+            <code class="text-gray-800">ActiveSessionContentView.tsx</code>
+            <span class="text-gray-400 ml-2">— 70/30 → 55/45 비율 변경</span>
+          </div>
+        </div>
+        <div class="flex items-start gap-2">
+          <span class="tag bg-blue-100 text-blue-700 text-[10px]">수정</span>
+          <div>
+            <code class="text-gray-800">AgentSidebarView.tsx</code>
+            <span class="text-gray-400 ml-2">— 탭 구조 적용 (로그/리포트)</span>
+          </div>
+        </div>
+        <div class="flex items-start gap-2">
+          <span class="tag bg-blue-100 text-blue-700 text-[10px]">수정</span>
+          <div>
+            <code class="text-gray-800">DraftReportView.tsx</code>
+            <span class="text-gray-400 ml-2">— absolute → 탭 패널 내 full-height</span>
+          </div>
+        </div>
+        <div class="flex items-start gap-2">
+          <span class="tag bg-green-100 text-green-700 text-[10px]">신규</span>
+          <div>
+            <code class="text-gray-800">FlowBarView.tsx</code>
+            <span class="text-gray-400 ml-2">— 분석 플로우 스텝 바 (헤더 하단)</span>
+          </div>
+        </div>
+        <div class="flex items-start gap-2">
+          <span class="tag bg-blue-100 text-blue-700 text-[10px]">수정</span>
+          <div>
+            <code class="text-gray-800">useAgentStore.ts</code>
+            <span class="text-gray-400 ml-2">— activeTab, flowStep 상태 추가</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 9. 다음 단계 -->
+    <div class="card p-5 bg-gray-50 border-2 border-dashed border-gray-200">
+      <h3 class="text-sm font-bold text-gray-400 uppercase tracking-wider mb-3">다음 단계</h3>
+      <div class="space-y-2 text-sm text-gray-600">
+        <div class="flex items-center gap-2">
+          <code class="bg-purple-100 text-purple-700 px-2 py-0.5 rounded text-xs">/dev-plan</code>
+          <span>구현 계획 수립 → 파일별 변경 순서 확정</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <code class="bg-purple-100 text-purple-700 px-2 py-0.5 rounded text-xs">/dev-go</code>
+          <span>바로 구현 시작</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</body>
+</html>

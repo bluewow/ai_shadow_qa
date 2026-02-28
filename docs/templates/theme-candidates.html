@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>테마 시안 비교 — {{PROJECT_NAME}}</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" rel="stylesheet" />
+  <style>
+    * { font-family: 'Pretendard Variable', system-ui, sans-serif; }
+    .tab-btn { transition: all 0.2s; cursor: pointer; }
+    .tab-btn.active { border-bottom: 2px solid #6366f1; color: #111; font-weight: 600; }
+    .tab-btn:not(.active) { border-bottom: 2px solid transparent; color: #888; }
+    .tab-btn:not(.active):hover { color: #555; }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+    .card { background: white; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); border: 1px solid #f0f0f0; }
+    .swatch {
+      width: 52px; height: 52px; border-radius: 10px;
+      display: flex; flex-direction: column; align-items: center; justify-content: flex-end;
+      padding-bottom: 3px; font-size: 7.5px; font-weight: 500; cursor: pointer;
+      border: 1px solid rgba(0,0,0,0.06); transition: transform 0.15s;
+    }
+    .swatch:hover { transform: scale(1.08); }
+    .mood-tag { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 500; background: #f5f3ff; color: #7c3aed; }
+    .mockup-frame {
+      width: 390px; border-radius: 24px; overflow: hidden;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.18); border: 6px solid #1a1a1a;
+      margin: 0 auto; background: #fff;
+    }
+    .mockup-frame.dark { background: #18181b; }
+    .contrast-pass { color: #16a34a; font-weight: 600; }
+    .contrast-fail { color: #dc2626; font-weight: 600; }
+  </style>
+</head>
+<body class="bg-gray-50 text-gray-900 p-8">
+  <div class="max-w-[1000px] mx-auto">
+
+    <!-- 1. Header -->
+    <div class="mb-8">
+      <h1 class="text-2xl font-bold">테마 시안 비교</h1>
+      <p class="text-gray-500 text-sm mt-1">{{PROJECT_NAME}} · 생성일 {{DATE}} · 참조: {{SOURCE_DESCRIPTION}}</p>
+    </div>
+
+    <!-- 2. Tab Navigation -->
+    <div class="flex gap-6 border-b border-gray-200 mb-6">
+      <button class="tab-btn active pb-3 text-sm" onclick="switchTab('a')">안 A: {{CONCEPT_A_NAME}}</button>
+      <button class="tab-btn pb-3 text-sm" onclick="switchTab('b')">안 B: {{CONCEPT_B_NAME}}</button>
+      <button class="tab-btn pb-3 text-sm" onclick="switchTab('c')">안 C: {{CONCEPT_C_NAME}}</button>
+    </div>
+
+    <!-- Tab A -->
+    <div id="tab-a" class="tab-panel active">
+      <div class="card p-6 space-y-6">
+        <!-- Concept + Mood -->
+        <div>
+          <p class="text-sm font-semibold text-gray-800 mb-2">{{CONCEPT_A_DESCRIPTION}}</p>
+          <div class="flex gap-2">
+            <!-- MOOD_TAG: Repeat -->
+            <span class="mood-tag">{{KEYWORD}}</span>
+            <!-- /MOOD_TAG -->
+          </div>
+        </div>
+
+        <!-- Color Palette -->
+        <div>
+          <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Color Palette</p>
+          <div class="flex flex-wrap gap-3">
+            <!-- COLOR_SWATCH: Repeat 6-8 -->
+            <div class="swatch" style="background: {{HEX}}" onclick="navigator.clipboard.writeText('{{HEX}}')" title="Click to copy">
+              <span style="color: {{TEXT_ON_COLOR}}">{{ROLE}}</span>
+              <span style="color: {{TEXT_ON_COLOR}}; opacity: 0.7">{{HEX}}</span>
+            </div>
+            <!-- /COLOR_SWATCH -->
+          </div>
+        </div>
+
+        <!-- Typography Scale -->
+        <div>
+          <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Typography</p>
+          <div class="space-y-2">
+            <!-- TYPO_SCALE: H1 ~ Caption -->
+            <div class="flex items-baseline gap-3">
+              <span class="text-xs text-gray-400 w-12 shrink-0">{{SCALE}}</span>
+              <p style="font-size: {{SIZE}}; font-weight: {{WEIGHT}};">다람쥐 헌 쳇바퀴에 타고파</p>
+            </div>
+            <!-- /TYPO_SCALE -->
+          </div>
+        </div>
+
+        <!-- Component Samples -->
+        <div>
+          <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Components</p>
+          <div class="flex flex-wrap gap-3 items-center">
+            <!-- {{COMPONENT_SAMPLES_A}} — Buttons, cards, inputs styled with this theme -->
+            <button class="px-4 py-2 rounded-lg text-sm text-white" style="background: {{PRIMARY}}">Primary</button>
+            <button class="px-4 py-2 rounded-lg text-sm border" style="border-color: {{BORDER}}; color: {{TEXT}}">Secondary</button>
+            <input type="text" placeholder="Input field" class="px-3 py-2 rounded-lg text-sm border outline-none" style="border-color: {{BORDER}}" />
+          </div>
+        </div>
+
+        <!-- Mobile Mockup -->
+        <div>
+          <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Sample Page</p>
+          <div class="mockup-frame dark">
+            <!-- {{MOCKUP_A}} — Replace with themed sample page mockup -->
+            <div class="p-4 text-center text-zinc-500 text-sm py-20">안 A 테마 적용 샘플 페이지</div>
+          </div>
+        </div>
+
+        <!-- Accessibility -->
+        <div>
+          <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Contrast Ratio</p>
+          <table class="w-full text-xs">
+            <thead>
+              <tr class="text-left text-gray-400 uppercase">
+                <th class="pb-1">Combination</th><th class="pb-1">Ratio</th><th class="pb-1">AA</th><th class="pb-1">AAA</th>
+              </tr>
+            </thead>
+            <tbody class="text-gray-600">
+              <!-- CONTRAST_ROW: Repeat 3-4 -->
+              <tr class="border-t border-gray-50">
+                <td class="py-1.5">{{COMBINATION}}</td>
+                <td class="py-1.5">{{RATIO}}</td>
+                <td class="py-1.5 contrast-pass">{{AA}}</td>
+                <td class="py-1.5 contrast-fail">{{AAA}}</td>
+              </tr>
+              <!-- /CONTRAST_ROW -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab B (same structure as A — duplicate and fill) -->
+    <div id="tab-b" class="tab-panel">
+      <div class="card p-6 space-y-6">
+        <div>
+          <p class="text-sm font-semibold text-gray-800 mb-2">{{CONCEPT_B_DESCRIPTION}}</p>
+          <div class="flex gap-2">
+            <span class="mood-tag">{{KEYWORD}}</span>
+          </div>
+        </div>
+        <div>
+          <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Color Palette</p>
+          <div class="flex flex-wrap gap-3">
+            <!-- {{COLOR_SWATCHES_B}} -->
+          </div>
+        </div>
+        <div>
+          <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Typography</p>
+          <div class="space-y-2">
+            <!-- {{TYPO_SCALES_B}} -->
+          </div>
+        </div>
+        <div>
+          <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Components</p>
+          <div class="flex flex-wrap gap-3 items-center">
+            <!-- {{COMPONENT_SAMPLES_B}} -->
+          </div>
+        </div>
+        <div>
+          <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Sample Page</p>
+          <div class="mockup-frame dark">
+            <div class="p-4 text-center text-zinc-500 text-sm py-20">안 B 테마 적용 샘플 페이지</div>
+          </div>
+        </div>
+        <div>
+          <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Contrast Ratio</p>
+          <table class="w-full text-xs">
+            <thead><tr class="text-left text-gray-400 uppercase"><th class="pb-1">Combination</th><th class="pb-1">Ratio</th><th class="pb-1">AA</th><th class="pb-1">AAA</th></tr></thead>
+            <tbody class="text-gray-600">
+              <!-- {{CONTRAST_ROWS_B}} -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab C (same structure as A — duplicate and fill) -->
+    <div id="tab-c" class="tab-panel">
+      <div class="card p-6 space-y-6">
+        <div>
+          <p class="text-sm font-semibold text-gray-800 mb-2">{{CONCEPT_C_DESCRIPTION}}</p>
+          <div class="flex gap-2">
+            <span class="mood-tag">{{KEYWORD}}</span>
+          </div>
+        </div>
+        <div>
+          <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Color Palette</p>
+          <div class="flex flex-wrap gap-3">
+            <!-- {{COLOR_SWATCHES_C}} -->
+          </div>
+        </div>
+        <div>
+          <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Typography</p>
+          <div class="space-y-2">
+            <!-- {{TYPO_SCALES_C}} -->
+          </div>
+        </div>
+        <div>
+          <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Components</p>
+          <div class="flex flex-wrap gap-3 items-center">
+            <!-- {{COMPONENT_SAMPLES_C}} -->
+          </div>
+        </div>
+        <div>
+          <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Sample Page</p>
+          <div class="mockup-frame dark">
+            <div class="p-4 text-center text-zinc-500 text-sm py-20">안 C 테마 적용 샘플 페이지</div>
+          </div>
+        </div>
+        <div>
+          <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Contrast Ratio</p>
+          <table class="w-full text-xs">
+            <thead><tr class="text-left text-gray-400 uppercase"><th class="pb-1">Combination</th><th class="pb-1">Ratio</th><th class="pb-1">AA</th><th class="pb-1">AAA</th></tr></thead>
+            <tbody class="text-gray-600">
+              <!-- {{CONTRAST_ROWS_C}} -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. Comparison Table -->
+    <div class="card p-6 mt-8">
+      <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4">차이점 요약</p>
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="text-left text-xs text-gray-400 uppercase border-b border-gray-100">
+            <th class="pb-2 w-24">항목</th>
+            <th class="pb-2">안 A</th>
+            <th class="pb-2">안 B</th>
+            <th class="pb-2">안 C</th>
+          </tr>
+        </thead>
+        <tbody class="text-gray-600">
+          <tr class="border-t border-gray-50"><td class="py-2 font-medium text-gray-700">톤</td><td class="py-2">{{TONE_A}}</td><td class="py-2">{{TONE_B}}</td><td class="py-2">{{TONE_C}}</td></tr>
+          <tr class="border-t border-gray-50"><td class="py-2 font-medium text-gray-700">Primary</td><td class="py-2">{{PRIMARY_A}}</td><td class="py-2">{{PRIMARY_B}}</td><td class="py-2">{{PRIMARY_C}}</td></tr>
+          <tr class="border-t border-gray-50"><td class="py-2 font-medium text-gray-700">폰트</td><td class="py-2">{{FONT_A}}</td><td class="py-2">{{FONT_B}}</td><td class="py-2">{{FONT_C}}</td></tr>
+          <tr class="border-t border-gray-50"><td class="py-2 font-medium text-gray-700">특징</td><td class="py-2">{{FEATURE_A}}</td><td class="py-2">{{FEATURE_B}}</td><td class="py-2">{{FEATURE_C}}</td></tr>
+          <tr class="border-t border-gray-50"><td class="py-2 font-medium text-gray-700">접근성</td><td class="py-2">{{ACCESS_A}}</td><td class="py-2">{{ACCESS_B}}</td><td class="py-2">{{ACCESS_C}}</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+
+  <script>
+    function switchTab(id) {
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.getElementById('tab-' + id).classList.add('active');
+      event.currentTarget.classList.add('active');
+    }
+  </script>
+</body>
+</html>

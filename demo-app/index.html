@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Todo App - Demo Target</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Segoe UI', sans-serif; background: #f5f5f5; color: #333; min-height: 100vh; }
+
+    /* Nav */
+    nav { background: #fff; border-bottom: 1px solid #e0e0e0; padding: 0 24px; display: flex; align-items: center; gap: 32px; height: 56px; }
+    nav .logo { font-weight: 700; font-size: 18px; color: #2563eb; }
+    nav a { text-decoration: none; color: #666; font-size: 14px; padding: 16px 0; border-bottom: 2px solid transparent; cursor: pointer; }
+    nav a.active { color: #2563eb; border-bottom-color: #2563eb; font-weight: 600; }
+
+    /* Layout */
+    .container { max-width: 640px; margin: 32px auto; padding: 0 16px; }
+    h1 { font-size: 24px; margin-bottom: 20px; }
+
+    /* Card */
+    .card { background: #fff; border-radius: 12px; border: 1px solid #e5e7eb; padding: 20px; margin-bottom: 16px; }
+
+    /* Stats bar */
+    .stats { display: flex; gap: 16px; margin-bottom: 24px; }
+    .stat-box { flex: 1; background: #fff; border-radius: 10px; border: 1px solid #e5e7eb; padding: 16px; text-align: center; }
+    .stat-box .num { font-size: 28px; font-weight: 700; color: #2563eb; }
+    .stat-box .label { font-size: 12px; color: #999; margin-top: 4px; }
+
+    /* Todo item */
+    .todo-item { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid #f0f0f0; }
+    .todo-item:last-child { border-bottom: none; }
+    .todo-item input[type="checkbox"] { width: 18px; height: 18px; accent-color: #2563eb; cursor: pointer; }
+    .todo-item .text { flex: 1; font-size: 15px; }
+    .todo-item .text.done { text-decoration: line-through; color: #aaa; }
+    .todo-item .delete-btn { background: none; border: none; color: #ccc; cursor: pointer; font-size: 18px; padding: 4px 8px; border-radius: 6px; }
+    .todo-item .delete-btn:hover { background: #fee2e2; color: #ef4444; }
+
+    /* Form */
+    .form-group { margin-bottom: 16px; }
+    .form-group label { display: block; font-size: 13px; font-weight: 600; color: #555; margin-bottom: 6px; }
+    .form-group input, .form-group select { width: 100%; padding: 10px 14px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 14px; outline: none; }
+    .form-group input:focus { border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
+    .form-group input.error { border-color: #ef4444; box-shadow: 0 0 0 3px rgba(239,68,68,0.1); }
+
+    /* Buttons */
+    .btn { padding: 10px 20px; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.15s; }
+    .btn-primary { background: #2563eb; color: #fff; }
+    .btn-primary:hover { background: #1d4ed8; }
+    .btn-danger { background: #ef4444; color: #fff; }
+    .btn-danger:hover { background: #dc2626; }
+    .btn-secondary { background: #f3f4f6; color: #333; border: 1px solid #d1d5db; }
+
+    /* Toast */
+    .toast { position: fixed; top: 20px; right: 20px; padding: 14px 20px; border-radius: 10px; color: #fff; font-size: 14px; font-weight: 500; z-index: 1000; transform: translateX(120%); transition: transform 0.3s ease; max-width: 360px; box-shadow: 0 4px 20px rgba(0,0,0,0.15); }
+    .toast.show { transform: translateX(0); }
+    .toast.error { background: #ef4444; }
+    .toast.success { background: #22c55e; }
+
+    /* Error page */
+    .error-page { display: none; position: fixed; inset: 0; background: #fff; z-index: 999; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 40px; }
+    .error-page.show { display: flex; }
+    .error-page .error-code { font-size: 120px; font-weight: 900; color: #ef4444; line-height: 1; }
+    .error-page .error-title { font-size: 24px; font-weight: 700; color: #333; margin: 16px 0 8px; }
+    .error-page .error-desc { font-size: 14px; color: #888; margin-bottom: 24px; max-width: 400px; }
+    .error-page .error-stack { background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; padding: 16px; font-family: monospace; font-size: 12px; color: #991b1b; text-align: left; max-width: 500px; width: 100%; margin-bottom: 24px; white-space: pre-wrap; }
+
+    .empty { text-align: center; padding: 40px; color: #aaa; font-size: 14px; }
+  </style>
+</head>
+<body>
+
+  <!-- Navigation -->
+  <nav>
+    <span class="logo">Todo App</span>
+    <a href="#/" id="nav-list">할일 목록</a>
+    <a href="#/add" id="nav-add">할일 추가</a>
+    <a href="#/settings" id="nav-settings">설정</a>
+  </nav>
+
+  <!-- Toast notification -->
+  <div class="toast" id="toast"></div>
+
+  <!-- 500 Error page overlay -->
+  <div class="error-page" id="error-page">
+    <div class="error-code">500</div>
+    <div class="error-title">Internal Server Error</div>
+    <div class="error-desc">요청을 처리하는 중 서버에서 예기치 않은 오류가 발생했습니다.</div>
+    <div class="error-stack">Error: ECONNREFUSED - Database connection failed
+  at DBPool.connect (db/pool.js:42:15)
+  at TodoService.resetAll (services/todo.js:87:22)
+  at SettingsController.handleReset (controllers/settings.js:31:9)
+  at processRequest (server.js:156:12)
+
+Caused by: MongoNetworkError: connect ECONNREFUSED 127.0.0.1:27017
+  at TCPConnectWrap.afterConnect (net.js:1141:16)</div>
+    <button class="btn btn-secondary" onclick="closeErrorPage()">돌아가기</button>
+  </div>
+
+  <!-- Page: 할일 목록 -->
+  <div class="container" id="page-list" style="display:none;">
+    <h1>할일 목록</h1>
+    <div class="stats" id="stats-area">
+      <div class="stat-box"><div class="num" id="stat-total">0</div><div class="label">전체</div></div>
+      <div class="stat-box"><div class="num" id="stat-done">0</div><div class="label">완료</div></div>
+      <div class="stat-box"><div class="num" id="stat-remain">0</div><div class="label">남은 할일</div></div>
+    </div>
+    <div class="card" id="todo-container">
+      <div class="empty">할일이 없습니다. 추가해보세요!</div>
+    </div>
+  </div>
+
+  <!-- Page: 할일 추가 -->
+  <div class="container" id="page-add" style="display:none;">
+    <h1>할일 추가</h1>
+    <div class="card">
+      <div class="form-group">
+        <label>할일 내용</label>
+        <input type="text" id="input-title" placeholder="할일을 입력하세요..." />
+      </div>
+      <div class="form-group">
+        <label>우선순위</label>
+        <select id="input-priority">
+          <option value="low">낮음</option>
+          <option value="medium" selected>보통</option>
+          <option value="high">높음</option>
+        </select>
+      </div>
+      <div style="display:flex; gap:8px; margin-top:8px;">
+        <button class="btn btn-primary" onclick="addTodo()">저장</button>
+        <a href="#/" class="btn btn-secondary" style="text-decoration:none; text-align:center;">취소</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Page: 설정 -->
+  <div class="container" id="page-settings" style="display:none;">
+    <h1>설정</h1>
+    <div class="card">
+      <h3 style="font-size:16px; margin-bottom:12px;">데이터 관리</h3>
+      <p style="font-size:13px; color:#888; margin-bottom:16px;">모든 할일 데이터를 초기화합니다. 이 작업은 되돌릴 수 없습니다.</p>
+      <button class="btn btn-danger" onclick="resetData()">데이터 초기화</button>
+    </div>
+    <div class="card" style="margin-top:16px;">
+      <h3 style="font-size:16px; margin-bottom:8px;">앱 정보</h3>
+      <p style="font-size:13px; color:#888;">Todo App v1.0.2</p>
+      <p style="font-size:13px; color:#888;">Build: 2026.02.28</p>
+    </div>
+  </div>
+
+<script>
+  // ─── State ───
+  let todos = [
+    { id: 1, text: "프로젝트 기획서 작성", done: false },
+    { id: 2, text: "API 엔드포인트 설계", done: false },
+    { id: 3, text: "디자인 시안 검토", done: true },
+    { id: 4, text: "데이터베이스 스키마 정의", done: false },
+    { id: 5, text: "로그인 기능 구현", done: false },
+  ];
+  let nextId = 6;
+  let completedCount = 1; // intentionally tracked separately (will break)
+
+  // ─── Router ───
+  function navigate() {
+    const hash = location.hash || "#/";
+    document.querySelectorAll(".container").forEach(p => p.style.display = "none");
+    document.querySelectorAll("nav a").forEach(a => a.classList.remove("active"));
+
+    if (hash === "#/add") {
+      document.getElementById("page-add").style.display = "block";
+      document.getElementById("nav-add").classList.add("active");
+    } else if (hash === "#/settings") {
+      document.getElementById("page-settings").style.display = "block";
+      document.getElementById("nav-settings").classList.add("active");
+    } else {
+      document.getElementById("page-list").style.display = "block";
+      document.getElementById("nav-list").classList.add("active");
+      renderTodos();
+    }
+  }
+  window.addEventListener("hashchange", navigate);
+  window.addEventListener("load", navigate);
+
+  // ─── Render ───
+  function renderTodos() {
+    const container = document.getElementById("todo-container");
+    if (todos.length === 0) {
+      container.innerHTML = '<div class="empty">할일이 없습니다. 추가해보세요!</div>';
+    } else {
+      container.innerHTML = todos.map(t => `
+        <div class="todo-item">
+          <input type="checkbox" ${t.done ? "checked" : ""} onchange="toggleTodo(${t.id})" />
+          <span class="text ${t.done ? "done" : ""}">${t.text}</span>
+          <button class="delete-btn" onclick="deleteTodo(${t.id})">✕</button>
+        </div>
+      `).join("");
+    }
+    updateStats();
+  }
+
+  function updateStats() {
+    const total = todos.length;
+    document.getElementById("stat-total").textContent = total;
+    document.getElementById("stat-done").textContent = completedCount;
+    document.getElementById("stat-remain").textContent = total - completedCount;
+  }
+
+  // ─── Error Flow 1: 빈 값 저장 → validation 우회로 빈 항목이 목록에 추가됨 ───
+  function addTodo() {
+    const input = document.getElementById("input-title");
+    const text = input.value;
+
+    // BUG: trim() 누락으로 공백만 입력해도 통과, 빈 문자열은 빨간 테두리만 표시하지만 return 하지 않음
+    if (text === "") {
+      input.classList.add("error");
+    }
+
+    input.classList.remove("error");
+    todos.push({ id: nextId++, text: text.trim() || "", done: false });
+    input.value = "";
+    showToast("success", "할일이 추가되었습니다.");
+    location.hash = "#/";
+  }
+
+  // ─── Error Flow 2: 완료 3개 이상 → NaN + 레이아웃 깨짐 ───
+  function toggleTodo(id) {
+    const todo = todos.find(t => t.id === id);
+    if (!todo) return;
+
+    todo.done = !todo.done;
+
+    if (todo.done) {
+      completedCount++;
+    } else {
+      completedCount--;
+    }
+
+    // BUG: 완료 3개 이상이면 의도적으로 카운트를 깨뜨림
+    if (completedCount >= 3) {
+      completedCount = parseInt("not_a_number"); // → NaN
+    }
+
+    renderTodos();
+  }
+
+  function deleteTodo(id) {
+    const todo = todos.find(t => t.id === id);
+    if (todo && todo.done && completedCount > 0) {
+      completedCount--;
+    }
+    todos = todos.filter(t => t.id !== id);
+    renderTodos();
+  }
+
+  // ─── Error Flow 3: 데이터 초기화 → 500 에러 ───
+  function resetData() {
+    document.getElementById("error-page").classList.add("show");
+  }
+
+  function closeErrorPage() {
+    document.getElementById("error-page").classList.remove("show");
+  }
+
+  // ─── Toast ───
+  function showToast(type, message) {
+    const toast = document.getElementById("toast");
+    toast.className = "toast " + type;
+    toast.textContent = message;
+    setTimeout(() => toast.classList.add("show"), 10);
+    setTimeout(() => toast.classList.remove("show"), 4000);
+  }
+</script>
+</body>
+</html>

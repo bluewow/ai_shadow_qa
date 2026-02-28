@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>AI Shadow QA - Developer Dashboard</title>
+<!-- Google Fonts: Inter -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS CDN -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            primary: '#7938fa',
+            darkBg: '#0a0a0a',
+            glass: 'rgba(255, 255, 255, 0.03)',
+            glassBorder: 'rgba(255, 255, 255, 0.08)',
+          },
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          borderRadius: {
+            'custom': '8px',
+          }
+        }
+      }
+    }
+  </script>
+<style data-purpose="global-styles">
+    body {
+      background-color: #0a0a0a;
+      color: #e5e7eb;
+      overflow: hidden;
+    }
+    .glass-morphism {
+      background: rgba(15, 15, 15, 0.7);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    .purple-glow {
+      box-shadow: 0 0 20px rgba(121, 56, 250, 0.15);
+    }
+    .scan-line {
+      height: 2px;
+      background: linear-gradient(90deg, transparent, #7938fa, transparent);
+      animation: scan 3s linear infinite;
+    }
+    @keyframes scan {
+      0% { top: 0%; }
+      100% { top: 100%; }
+    }
+    @keyframes pulse-red {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+    .pulse-rec {
+      animation: pulse-red 1.5s ease-in-out infinite;
+    }
+    ::-webkit-scrollbar {
+      width: 4px;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #333;
+      border-radius: 10px;
+    }
+  </style>
+</head>
+<body class="h-screen flex flex-col font-sans">
+<!-- BEGIN: Top Navigation Bar -->
+<header class="h-14 border-b border-glassBorder flex items-center justify-between px-6 bg-darkBg/50 backdrop-blur-md z-50" data-purpose="main-header">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 bg-primary rounded-custom flex items-center justify-center">
+<svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<path d="M13 10V3L4 14h7v7l9-11h-7z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</div>
+<span class="font-bold tracking-tight text-white uppercase text-sm">AI Shadow QA <span class="text-zinc-500 font-normal">v2.4.0</span></span>
+</div>
+<div class="flex items-center gap-6 text-sm text-zinc-400">
+<nav class="flex gap-4">
+<a class="hover:text-white transition-colors" href="#">Dashboard</a>
+<a class="text-white" href="#">Active Session</a>
+<a class="hover:text-white transition-colors" href="#">History</a>
+</nav>
+<div class="h-4 w-px bg-zinc-800"></div>
+<div class="flex items-center gap-2">
+<div class="w-2 h-2 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.5)]"></div>
+<span class="text-xs font-medium uppercase tracking-widest text-zinc-300">Live Engine</span>
+</div>
+</div>
+</header>
+<!-- END: Top Navigation Bar -->
+<!-- BEGIN: Main Content Area -->
+<main class="flex-1 flex overflow-hidden">
+<!-- BEGIN: Left Section (Mock Web App) -->
+<section class="w-[70%] bg-zinc-950 p-6 overflow-y-auto border-r border-glassBorder" data-purpose="test-application-container">
+<div class="max-w-4xl mx-auto">
+<!-- Mock App Header -->
+<div class="flex justify-between items-center mb-8">
+<div>
+<h1 class="text-2xl font-bold text-white mb-1">E-Commerce Insights</h1>
+<p class="text-zinc-500 text-sm">Operational Dashboard • Preview Mode</p>
+</div>
+<div class="flex gap-2">
+<button class="px-4 py-2 bg-zinc-900 border border-zinc-800 rounded-custom text-xs font-medium text-zinc-300">Export CSV</button>
+<button class="px-4 py-2 bg-zinc-900 border border-zinc-800 rounded-custom text-xs font-medium text-zinc-300">Settings</button>
+</div>
+</div>
+<!-- Mock Metrics -->
+<div class="grid grid-cols-3 gap-4 mb-8">
+<div class="p-5 bg-zinc-900/50 border border-zinc-800 rounded-custom">
+<p class="text-zinc-500 text-xs font-medium uppercase mb-2">Total Revenue</p>
+<p class="text-2xl font-semibold text-white">$124,592.00</p>
+<p class="text-green-500 text-xs mt-2">+12.5% from last month</p>
+</div>
+<div class="p-5 bg-zinc-900/50 border border-zinc-800 rounded-custom">
+<p class="text-zinc-500 text-xs font-medium uppercase mb-2">Active Cart Sessions</p>
+<p class="text-2xl font-semibold text-white">1,482</p>
+<p class="text-zinc-500 text-xs mt-2">Currently being tracked</p>
+</div>
+<div class="p-5 bg-zinc-900/50 border border-zinc-800 rounded-custom relative overflow-hidden">
+<!-- Simulated Error Highlight for QA -->
+<div class="absolute inset-0 border-2 border-red-500/50 bg-red-500/5 animate-pulse"></div>
+<p class="text-zinc-500 text-xs font-medium uppercase mb-2">Checkout Success</p>
+<p class="text-2xl font-semibold text-red-400">84.2%</p>
+<p class="text-red-500 text-xs mt-2 font-bold underline">Critical Drop Detected</p>
+</div>
+</div>
+<!-- Mock Table Content -->
+<div class="bg-zinc-900/50 border border-zinc-800 rounded-custom overflow-hidden">
+<div class="p-4 border-b border-zinc-800 flex justify-between items-center">
+<h3 class="text-sm font-semibold text-white">Recent Transactions</h3>
+<span class="text-xs text-zinc-500">Showing last 10 activities</span>
+</div>
+<table class="w-full text-left text-sm">
+<thead>
+<tr class="text-zinc-500 border-b border-zinc-800">
+<th class="px-4 py-3 font-medium">Order ID</th>
+<th class="px-4 py-3 font-medium">Customer</th>
+<th class="px-4 py-3 font-medium">Status</th>
+<th class="px-4 py-3 font-medium text-right">Amount</th>
+</tr>
+</thead>
+<tbody class="text-zinc-300">
+<tr class="border-b border-zinc-800/50">
+<td class="px-4 py-3">#ORD-9021</td>
+<td class="px-4 py-3">Alex Rivera</td>
+<td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full bg-green-500/10 text-green-500 text-[10px] uppercase font-bold">Paid</span></td>
+<td class="px-4 py-3 text-right">$299.00</td>
+</tr>
+<tr class="border-b border-zinc-800/50 bg-red-500/5">
+<td class="px-4 py-3 font-medium text-red-400">#ORD-9022</td>
+<td class="px-4 py-3">Jordan Smith</td>
+<td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full bg-red-500/10 text-red-500 text-[10px] uppercase font-bold">Failed</span></td>
+<td class="px-4 py-3 text-right">$145.00</td>
+</tr>
+<tr class="border-b border-zinc-800/50">
+<td class="px-4 py-3">#ORD-9023</td>
+<td class="px-4 py-3">Casey Jones</td>
+<td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full bg-zinc-800 text-zinc-400 text-[10px] uppercase font-bold">Pending</span></td>
+<td class="px-4 py-3 text-right">$540.00</td>
+</tr>
+</tbody>
+</table>
+<div class="p-4 bg-zinc-900/80">
+<div class="w-full h-32 bg-zinc-950 rounded-custom border border-zinc-800 flex items-center justify-center">
+<span class="text-zinc-600 text-xs italic">Chart Visualization: Checkout Flow Performance</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- END: Left Section -->
+<!-- BEGIN: Right Section (AI Agent Sidebar) -->
+<aside class="w-[30%] bg-darkBg flex flex-col h-full relative" data-purpose="ai-agent-sidebar">
+<!-- Video Feed / Viewport -->
+<div class="p-4 pb-2">
+<div class="relative aspect-video bg-zinc-900 rounded-custom border border-glassBorder overflow-hidden group">
+<img alt="Session Feed" class="w-full h-full object-cover opacity-80" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCE_3uxR6HcXpZ7wdFDqRLQ1XewlXy6rLzWsp1M6w0XUtHb-iQbY1oL6eJ1XrIs4gAVQbuQzKYm0JZ8XwuKvYP0J_y8s9dZrKtAdZCfcrMd_sv4nvG5LlUgh4u3R_bUX83QA1IytDeZ8IFqDXpHOPNpPPdld-Ze9oALsuc9WQv0X84onrONK7ZIfHw9lv_ziVRgCzLiO-A2ugvl6YDdeASWED76eSXZtbzh5QpxMFWGRId8uV3PnrLaOBkdGuzWjQ6GKli_tfOmPrQn"/>
+<div class="absolute inset-0 scan-line pointer-events-none opacity-40"></div>
+<!-- Overlay UI -->
+<div class="absolute top-3 left-3 flex items-center gap-2 px-2 py-1 bg-black/60 rounded-md backdrop-blur-sm border border-white/10">
+<div class="w-2 h-2 rounded-full bg-red-500 pulse-rec"></div>
+<span class="text-[10px] font-bold tracking-widest text-white uppercase">REC</span>
+</div>
+<div class="absolute bottom-3 right-3 text-[10px] text-zinc-400 bg-black/60 px-2 py-1 rounded border border-white/10">
+            FPS: 60 • LATENCY: 12ms
+          </div>
+</div>
+</div>
+<!-- Agent Terminal Logs -->
+<div class="flex-1 px-4 py-2 overflow-hidden flex flex-col">
+<div class="flex items-center gap-2 mb-2 px-1">
+<svg class="w-3 h-3 text-primary" fill="currentColor" viewbox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+<path clip-rule="evenodd" d="M2 5a2 2 0 012-2h12a2 2 0 012 2v10a2 2 0 01-2 2H4a2 2 0 01-2-2V5zm3.293 1.293a1 1 0 011.414 0l3 3a1 1 0 010 1.414l-3 3a1 1 0 01-1.414-1.414L7.586 10 5.293 7.707a1 1 0 010-1.414zM11 12a1 1 0 100 2h3a1 1 0 100-2h-3z" fill-rule="evenodd"></path>
+</svg>
+<span class="text-[10px] font-semibold text-zinc-500 uppercase tracking-widest">Agent Reasoning Log</span>
+</div>
+<div class="flex-1 bg-zinc-950/50 border border-glassBorder rounded-custom p-4 font-mono text-xs overflow-y-auto space-y-2" data-purpose="terminal-logs" id="terminal-logs">
+<p class="text-zinc-500">[14:20:01] <span class="text-primary">INFO</span> Session started. Attaching to DOM root...</p>
+<p class="text-zinc-500">[14:20:05] <span class="text-primary">SCAN</span> Mapping interactive elements: 42 found.</p>
+<p class="text-zinc-500">[14:20:12] <span class="text-primary">ACT</span> User clicked element &lt;button id="checkout"&gt;</p>
+<p class="text-zinc-500">[14:20:14] <span class="text-primary">OBS</span> URL changed to /checkout/payment</p>
+<p class="text-zinc-500">[14:20:15] <span class="text-yellow-500 font-medium">WARN</span> Long task detected in main thread (450ms).</p>
+<p class="text-zinc-500">[14:20:18] <span class="text-red-500 font-medium">ERROR</span> Exception: 'TypeError: Cannot read property 'id' of null' in PaymentForm.tsx:124</p>
+<p class="text-zinc-500">[14:20:18] <span class="text-red-400">ANALYSIS</span> Agent suggests checkout state mismatch during validation.</p>
+<div class="w-1 h-3 bg-primary animate-pulse inline-block"></div>
+</div>
+</div>
+<!-- Action Button -->
+<div class="p-4" data-purpose="primary-actions">
+<button class="w-full py-4 bg-gradient-to-r from-[#7938fa] to-[#5a18d1] hover:to-[#7938fa] text-white font-bold rounded-custom shadow-[0_0_25px_rgba(121,56,250,0.4)] transition-all transform hover:scale-[1.01] active:scale-[0.98] flex items-center justify-center gap-3">
+<svg class="h-5 w-5" fill="currentColor" viewbox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+<path clip-rule="evenodd" d="M11.3 1.047a1 1 0 01.897.95V4.69l1.103-.551a1 1 0 011.012 1.728l-4.5 2.25a1 1 0 01-.894 0l-4.5-2.25a1 1 0 111.012-1.728l1.103.55V1.997a1 1 0 01.897-.95zM3 13a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" fill-rule="evenodd"></path>
+</svg>
+          ANALYZE ERROR
+        </button>
+</div>
+<!-- Draft Report Card (Pop-over Style) -->
+<div class="absolute bottom-24 left-4 right-4 glass-morphism rounded-custom p-5 purple-glow border-primary/30 z-40" data-purpose="draft-report-card">
+<div class="flex items-center justify-between mb-4">
+<div class="flex items-center gap-2">
+<div class="w-6 h-6 bg-white/10 rounded flex items-center justify-center">
+<img alt="Notion" class="w-4 h-4 grayscale contrast-125" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCA8CrFW7sO75L5NF2Vx_9uhNUDEIERWGcI8NtBismM8eWIuD26pvRtce0RHfIk4_776RhuRfGdDe-LGhsnf5YdB6TfdEVvewuqmEBMGwsR17QCUrDeWAybanSrirKUnW8BEToIgVOLN6XaEZKzow6E7I8UY2AP-xm2kL-9vELTssMteJi7blpzILPwddB_MZm2I4HrVbPxBzITaTA8VmKlKqeE6Xh24k2JvenI3muFlExtKwrDN3FqXqglUPAb5ThSe4KT1rjhqmEf"/>
+</div>
+<h4 class="text-xs font-bold text-white uppercase tracking-wider">Draft Notion Ticket</h4>
+</div>
+<button class="text-zinc-500 hover:text-white">
+<svg class="h-4 w-4" fill="none" stroke="currentColor" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</button>
+</div>
+<div class="space-y-4">
+<div>
+<label class="block text-[10px] font-bold text-zinc-500 uppercase mb-1">Summary</label>
+<input class="w-full bg-black/40 border border-white/10 rounded-md px-3 py-2 text-sm text-white focus:outline-none focus:border-primary/50 transition-colors" type="text" value="Critical Failure: Checkout Payment Flow"/>
+</div>
+<div>
+<label class="block text-[10px] font-bold text-zinc-500 uppercase mb-1">Reproduction Steps</label>
+<textarea class="w-full bg-black/40 border border-white/10 rounded-md px-3 py-2 text-xs text-zinc-300 focus:outline-none focus:border-primary/50 transition-colors resize-none" rows="3">1. Navigate to /checkout
+2. Input CC credentials
+3. Click 'Complete Purchase'
+4. Observation: State controller null error</textarea>
+</div>
+<button class="w-full py-2 bg-white text-black font-bold text-xs rounded-md hover:bg-zinc-200 transition-colors flex items-center justify-center gap-2">
+<span>Send to Notion</span>
+<svg class="h-3 w-3" fill="currentColor" viewbox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+<path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z"></path>
+</svg>
+</button>
+</div>
+</div>
+</aside>
+<!-- END: Right Section -->
+</main>
+<!-- END: Main Content Area -->
+<!-- BEGIN: Footer / Status Bar -->
+<footer class="h-8 border-t border-glassBorder bg-darkBg flex items-center justify-between px-4 text-[10px] text-zinc-500 font-medium uppercase tracking-widest" data-purpose="status-bar">
+<div class="flex items-center gap-4">
+<div class="flex items-center gap-1.5">
+<span class="w-1.5 h-1.5 rounded-full bg-green-500"></span>
+<span>Engine Active</span>
+</div>
+<div class="flex items-center gap-1.5">
+<span class="text-zinc-700">|</span>
+<span>Environment: Production-Mirror</span>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<span>Worker ID: SH-882-QA</span>
+<span>Token Usage: 0.041k</span>
+</div>
+</footer>
+<!-- END: Footer -->
+</body></html>

@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{{PROJECT_NAME}} Style Guide Preview</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" rel="stylesheet" />
+  <style>
+    * { font-family: 'Pretendard Variable', system-ui, sans-serif; }
+    .nav-link { transition: all 0.15s; }
+    .nav-link.active { color: #6366f1; font-weight: 600; border-left: 3px solid #6366f1; padding-left: 9px; }
+    .nav-link:not(.active) { color: #888; padding-left: 12px; }
+    .nav-link:not(.active):hover { color: #555; }
+    .swatch {
+      width: 64px; height: 64px; border-radius: 10px;
+      display: flex; flex-direction: column; align-items: center; justify-content: flex-end;
+      padding-bottom: 4px; font-size: 9px; cursor: pointer; transition: transform 0.15s;
+      border: 1px solid rgba(0,0,0,0.06);
+    }
+    .swatch:hover { transform: scale(1.08); }
+    .swatch:active::after { content: 'Copied!'; position: absolute; font-size: 10px; color: #6366f1; }
+    .section { scroll-margin-top: 2rem; }
+    .component-card { background: white; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); border: 1px solid #f0f0f0; padding: 24px; }
+    .contrast-pass { color: #16a34a; font-weight: 600; }
+    .contrast-fail { color: #dc2626; font-weight: 600; }
+  </style>
+</head>
+<body class="bg-gray-50 text-gray-900">
+  <div class="flex min-h-screen">
+
+    <!-- Sidebar Navigation -->
+    <nav class="w-48 fixed top-0 left-0 h-screen bg-white border-r border-gray-100 p-6 space-y-2 text-sm overflow-y-auto">
+      <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4">Style Guide</p>
+      <a href="#colors" class="nav-link active block py-1">Colors</a>
+      <a href="#typography" class="nav-link block py-1">Typography</a>
+      <a href="#spacing" class="nav-link block py-1">Spacing</a>
+      <a href="#components" class="nav-link block py-1">Components</a>
+      <a href="#layout" class="nav-link block py-1">Layout</a>
+      <a href="#motion" class="nav-link block py-1">Motion</a>
+      <a href="#accessibility" class="nav-link block py-1">Accessibility</a>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="ml-48 flex-1 p-8 max-w-[800px]">
+
+      <!-- Header -->
+      <div class="mb-10">
+        <h1 class="text-2xl font-bold">{{PROJECT_NAME}} <span class="text-base text-gray-400 font-normal">Style Guide</span></h1>
+        <p class="text-gray-500 text-sm mt-1">생성일 {{DATE}}</p>
+      </div>
+
+      <!-- 1. Colors -->
+      <section id="colors" class="section mb-12">
+        <h2 class="text-lg font-bold mb-4">1. Colors</h2>
+        <!-- COLOR_GROUP: Repeat per group (Primary, Neutral, Semantic, etc.) -->
+        <div class="mb-6">
+          <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">{{COLOR_GROUP_NAME}}</p>
+          <div class="flex flex-wrap gap-3">
+            <!-- COLOR_SWATCH: Repeat per color -->
+            <div class="swatch" style="background: {{HEX}}" onclick="navigator.clipboard.writeText('{{HEX}}')" title="Click to copy">
+              <span style="color: {{TEXT_ON_COLOR}}">{{TOKEN_NAME}}</span>
+              <span style="color: {{TEXT_ON_COLOR}}; opacity: 0.7;">{{HEX}}</span>
+            </div>
+            <!-- /COLOR_SWATCH -->
+          </div>
+        </div>
+        <!-- /COLOR_GROUP -->
+      </section>
+
+      <!-- 2. Typography -->
+      <section id="typography" class="section mb-12">
+        <h2 class="text-lg font-bold mb-4">2. Typography</h2>
+        <div class="component-card space-y-4">
+          <!-- TYPO_SCALE: Repeat per scale level -->
+          <div class="flex items-baseline gap-4">
+            <span class="text-xs text-gray-400 w-16 shrink-0">{{SCALE_NAME}}</span>
+            <p style="font-size: {{SIZE}}; font-weight: {{WEIGHT}}; line-height: {{LINE_HEIGHT}};">
+              다람쥐 헌 쳇바퀴에 타고파 The quick brown fox
+            </p>
+            <span class="text-xs text-gray-400 shrink-0">{{SIZE}} / {{WEIGHT}}</span>
+          </div>
+          <!-- /TYPO_SCALE -->
+        </div>
+      </section>
+
+      <!-- 3. Spacing -->
+      <section id="spacing" class="section mb-12">
+        <h2 class="text-lg font-bold mb-4">3. Spacing</h2>
+        <div class="component-card">
+          <div class="space-y-3">
+            <!-- SPACING_TOKEN: Repeat per token -->
+            <div class="flex items-center gap-4">
+              <span class="text-xs text-gray-400 w-12 shrink-0">{{TOKEN}}</span>
+              <div style="width: {{VALUE}}; height: 16px; background: #c4b5fd; border-radius: 4px;"></div>
+              <span class="text-xs text-gray-500">{{VALUE}} — {{USAGE}}</span>
+            </div>
+            <!-- /SPACING_TOKEN -->
+          </div>
+        </div>
+      </section>
+
+      <!-- 4. Components -->
+      <section id="components" class="section mb-12">
+        <h2 class="text-lg font-bold mb-4">4. Components</h2>
+
+        <!-- COMPONENT_SECTION: Repeat per component type -->
+        <div class="component-card mb-4">
+          <p class="text-sm font-bold text-gray-700 mb-4">{{COMPONENT_NAME}}</p>
+
+          <!-- Variant row -->
+          <div class="mb-4">
+            <p class="text-xs text-gray-400 mb-2">Variants</p>
+            <div class="flex flex-wrap gap-3 items-center">
+              <!-- {{COMPONENT_VARIANTS}} — Replace with actual rendered component variants -->
+              <button class="px-4 py-2 rounded-lg bg-indigo-500 text-white text-sm">Primary</button>
+              <button class="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 text-sm">Secondary</button>
+              <button class="px-4 py-2 rounded-lg bg-gray-100 text-gray-400 text-sm cursor-not-allowed">Disabled</button>
+            </div>
+          </div>
+
+          <!-- States row -->
+          <div>
+            <p class="text-xs text-gray-400 mb-2">States</p>
+            <div class="flex flex-wrap gap-3 items-center">
+              <!-- {{COMPONENT_STATES}} — hover, focus, disabled, error, etc. -->
+              <span class="text-xs text-gray-500">hover · focus · disabled · error</span>
+            </div>
+          </div>
+        </div>
+        <!-- /COMPONENT_SECTION -->
+      </section>
+
+      <!-- 5. Layout -->
+      <section id="layout" class="section mb-12">
+        <h2 class="text-lg font-bold mb-4">5. Layout</h2>
+        <div class="component-card">
+          <!-- {{LAYOUT_RULES}} — Container, grid, padding rules with visual examples -->
+          <p class="text-sm text-gray-600">{{LAYOUT_DESCRIPTION}}</p>
+        </div>
+      </section>
+
+      <!-- 6. Motion -->
+      <section id="motion" class="section mb-12">
+        <h2 class="text-lg font-bold mb-4">6. Motion</h2>
+        <div class="component-card">
+          <table class="w-full text-sm">
+            <thead>
+              <tr class="text-left text-xs text-gray-400 uppercase">
+                <th class="pb-2">Type</th>
+                <th class="pb-2">Duration</th>
+                <th class="pb-2">Easing</th>
+                <th class="pb-2">Usage</th>
+              </tr>
+            </thead>
+            <tbody class="text-gray-700">
+              <!-- MOTION_ROW: Repeat -->
+              <tr class="border-t border-gray-50">
+                <td class="py-2">{{MOTION_TYPE}}</td>
+                <td class="py-2">{{DURATION}}</td>
+                <td class="py-2 font-mono text-xs">{{EASING}}</td>
+                <td class="py-2 text-gray-500">{{MOTION_USAGE}}</td>
+              </tr>
+              <!-- /MOTION_ROW -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- 7. Accessibility -->
+      <section id="accessibility" class="section mb-12">
+        <h2 class="text-lg font-bold mb-4">7. Accessibility — Color Contrast</h2>
+        <div class="component-card">
+          <table class="w-full text-sm">
+            <thead>
+              <tr class="text-left text-xs text-gray-400 uppercase">
+                <th class="pb-2">Combination</th>
+                <th class="pb-2">Ratio</th>
+                <th class="pb-2">AA</th>
+                <th class="pb-2">AAA</th>
+              </tr>
+            </thead>
+            <tbody class="text-gray-700">
+              <!-- CONTRAST_ROW: Repeat -->
+              <tr class="border-t border-gray-50">
+                <td class="py-2 flex items-center gap-2">
+                  <span class="w-4 h-4 rounded" style="background: {{FG_COLOR}}"></span>
+                  on
+                  <span class="w-4 h-4 rounded border" style="background: {{BG_COLOR}}"></span>
+                  {{COMBINATION_LABEL}}
+                </td>
+                <td class="py-2">{{RATIO}}</td>
+                <td class="py-2 contrast-pass">{{AA_RESULT}}</td>
+                <td class="py-2 contrast-fail">{{AAA_RESULT}}</td>
+              </tr>
+              <!-- /CONTRAST_ROW -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- Sidebar active tracking -->
+  <script>
+    const sections = document.querySelectorAll('.section');
+    const navLinks = document.querySelectorAll('.nav-link');
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          navLinks.forEach(l => l.classList.remove('active'));
+          const link = document.querySelector(`.nav-link[href="#${entry.target.id}"]`);
+          if (link) link.classList.add('active');
+        }
+      });
+    }, { rootMargin: '-20% 0px -70% 0px' });
+    sections.forEach(s => observer.observe(s));
+  </script>
+</body>
+</html>
